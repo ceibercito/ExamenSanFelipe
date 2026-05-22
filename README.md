@@ -82,6 +82,3 @@ stock = Σ(MovimientoDet.Cantidad donde TipoMovimiento = 1 Entrada)
 2. Calcula SubTotal = Cantidad × PrecioVenta; Igv = SubTotal × 0.18; Total = SubTotal + Igv.
 3. Inserta VentaCab + VentaDet.
 4. Inserta MovimientoCab (Salida) + MovimientoDet.
-
-> Nota sobre el IGV: el examen escribe "Igv (cantidad * Precio Venta * 1.18)". Esa fórmula da el total con IGV incluido, no el IGV solo. En la solución se interpreta de la forma contablemente correcta: IGV = base × 0.18. Esto se explica en el documento de teoría y en el guión del video para que puedas justificarlo.
-```
