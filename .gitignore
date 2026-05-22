@@ -1,0 +1,22 @@
+# .NET
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# Entornos
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

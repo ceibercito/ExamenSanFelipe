@@ -1,0 +1,94 @@
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-3">Registrar Compra</h3>
+
+    <div class="alert alert-{{ mensaje()!.tipo }}" *ngIf="mensaje() as m">{{ m.texto }}</div>
+
+    <!-- Selección de producto -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Producto</label>
+            <select class="form-select" [(ngModel)]="selProductoId" name="prod">
+              <option [ngValue]="0" disabled>-- Seleccione --</option>
+              <option *ngFor="let p of productos()" [ngValue]="p.idProducto">{{ p.nombreProducto }}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Cantidad</label>
+            <input type="number" min="1" class="form-control" [(ngModel)]="selCantidad" name="cant" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Precio compra</label>
+            <input type="number" min="0" step="0.01" class="form-control" [(ngModel)]="selPrecio" name="prec" />
+          </div>
+          <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-primary flex-fill" (click)="agregarLinea()">+ Agregar</button>
+            <button class="btn btn-outline-success" (click)="abrirModal()" title="Registrar producto nuevo">Nuevo producto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalle de la compra -->
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Producto</th><th class="text-end">Cantidad</th><th class="text-end">Precio</th>
+          <th class="text-end">Subtotal</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let l of lineas(); let i = index">
+          <td>{{ l.nombre }}</td>
+          <td class="text-end">{{ l.cantidad }}</td>
+          <td class="text-end">{{ l.precio | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.cantidad * l.precio | number:'1.2-2' }}</td>
+          <td class="text-center"><button class="btn btn-sm btn-outline-danger" (click)="quitarLinea(i)">✕</button></td>
+        </tr>
+        <tr *ngIf="lineas().length === 0">
+          <td colspan="5" class="text-center text-muted">Sin productos agregados</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="3" class="text-end fw-bold">SubTotal</td><td class="text-end">{{ subTotal() | number:'1.2-2' }}</td><td></td></tr>
+        <tr><td colspan="3" class="text-end fw-bold">IGV (18%)</td><td class="text-end">{{ igv() | number:'1.2-2' }}</td><td></td></tr>
+        <tr><td colspan="3" class="text-end fw-bold">Total</td><td class="text-end fw-bold">{{ total() | number:'1.2-2' }}</td><td></td></tr>
+      </tfoot>
+    </table>
+
+    <button class="btn btn-success" (click)="guardarCompra()" [disabled]="lineas().length === 0">
+      Guardar Compra
+    </button>
+  </div>
+</div>
+
+<!-- MODAL: Registrar producto nuevo -->
+<div class="modal-backdrop-custom" *ngIf="modalAbierto()">
+  <div class="card shadow" style="width: 420px;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Registrar nuevo producto</strong>
+      <button class="btn-close" (click)="cerrarModal()"></button>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Nombre del producto</label>
+        <input type="text" class="form-control" [(ngModel)]="nuevoNombre" name="nn" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Nro. Lote</label>
+        <input type="text" class="form-control" [(ngModel)]="nuevoLote" name="nl" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Costo</label>
+        <input type="number" min="0" step="0.01" class="form-control" [(ngModel)]="nuevoCosto" name="nc" />
+      </div>
+      <p class="text-muted small">Precio de venta sugerido: {{ (nuevoCosto * 1.35) | number:'1.2-2' }} (costo × 1.35)</p>
+    </div>
+    <div class="card-footer text-end">
+      <button class="btn btn-secondary me-2" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" (click)="guardarProducto()">Guardar</button>
+    </div>
+  </div>
+</div>

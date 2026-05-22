@@ -1,0 +1,68 @@
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-3">Registrar Venta</h3>
+
+    <div class="alert alert-{{ mensaje()!.tipo }}" *ngIf="mensaje() as m">{{ m.texto }}</div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Producto</label>
+            <select class="form-select" [ngModel]="selProductoId()" (ngModelChange)="selProductoId.set(+$event)" name="prod">
+              <option [ngValue]="0" disabled>-- Seleccione --</option>
+              <option *ngFor="let p of productos()" [ngValue]="p.idProducto">{{ p.nombreProducto }}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Precio venta</label>
+            <input type="text" class="form-control" [value]="(productoSel()?.precioVenta ?? 0) | number:'1.2-2'" disabled />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Stock disp.</label>
+            <input type="text" class="form-control" [value]="productoSel()?.stockActual ?? 0" disabled />
+          </div>
+          <div class="col-md-1">
+            <label class="form-label">Cant.</label>
+            <input type="number" min="1" class="form-control" [(ngModel)]="selCantidad" name="cant" />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" (click)="agregarLinea()">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Producto</th><th class="text-end">Precio</th><th class="text-end">Cantidad</th>
+          <th class="text-end">Subtotal</th><th class="text-end">IGV</th><th class="text-end">Total</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let l of lineas(); let i = index">
+          <td>{{ l.nombre }}</td>
+          <td class="text-end">{{ l.precioVenta | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.cantidad }}</td>
+          <td class="text-end">{{ l.cantidad * l.precioVenta | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.cantidad * l.precioVenta * 0.18 | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.cantidad * l.precioVenta * 1.18 | number:'1.2-2' }}</td>
+          <td class="text-center"><button class="btn btn-sm btn-outline-danger" (click)="quitarLinea(i)">✕</button></td>
+        </tr>
+        <tr *ngIf="lineas().length === 0">
+          <td colspan="7" class="text-center text-muted">Sin productos agregados</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="5" class="text-end fw-bold">SubTotal</td><td class="text-end">{{ subTotal() | number:'1.2-2' }}</td><td></td></tr>
+        <tr><td colspan="5" class="text-end fw-bold">IGV (18%)</td><td class="text-end">{{ igv() | number:'1.2-2' }}</td><td></td></tr>
+        <tr><td colspan="5" class="text-end fw-bold">Total</td><td class="text-end fw-bold">{{ total() | number:'1.2-2' }}</td><td></td></tr>
+      </tfoot>
+    </table>
+
+    <button class="btn btn-success" (click)="guardarVenta()" [disabled]="lineas().length === 0">
+      Guardar Venta
+    </button>
+  </div>
+</div>

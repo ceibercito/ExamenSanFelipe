@@ -1,0 +1,16 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3" *ngIf="auth.usuario() as user">
+  <a class="navbar-brand fw-bold" href="#">Sistema Compras &amp; Ventas</a>
+  <div class="navbar-nav me-auto">
+    <a class="nav-link" routerLink="/compras" routerLinkActive="active fw-bold">Compras</a>
+    <a class="nav-link" routerLink="/ventas" routerLinkActive="active fw-bold">Ventas</a>
+    <a class="nav-link" routerLink="/kardex" routerLinkActive="active fw-bold">Kardex</a>
+  </div>
+  <div class="navbar-nav">
+    <span class="navbar-text text-light me-3">👤 {{ user }}</span>
+    <button class="btn btn-outline-light btn-sm" (click)="logout()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<main class="container-fluid py-4">
+  <router-outlet></router-outlet>
+</main>

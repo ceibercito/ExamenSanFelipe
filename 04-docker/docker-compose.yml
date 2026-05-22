@@ -1,0 +1,123 @@
+# Orquestación completa: SQL Server + 4 microservicios .NET 8 + frontend Angular.
+# Ejecutar desde esta carpeta (04-docker):  docker compose up --build
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: examen_mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Tu_Password123"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - examen_net
+
+  # Contenedor de un solo uso: crea la BD, las tablas y los datos iniciales.
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: examen_db_init
+    depends_on:
+      - mssql
+    entrypoint: ["/bin/bash", "/db-init.sh"]
+    volumes:
+      - ../01-base-de-datos:/scripts:ro
+      - ./db-init.sh:/db-init.sh:ro
+    networks:
+      - examen_net
+
+  auth:
+    build:
+      context: ..
+      dockerfile: 04-docker/backend.Dockerfile
+      args:
+        PROJECT: Auth.API
+    container_name: examen_auth
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=VentasComprasDB;User Id=sa;Password=Tu_Password123;TrustServerCertificate=True;"
+      FrontendUrl: "http://localhost:4400"
+    ports:
+      - "5001:8080"
+    depends_on:
+      - db-init
+    networks:
+      - examen_net
+
+  compras:
+    build:
+      context: ..
+      dockerfile: 04-docker/backend.Dockerfile
+      args:
+        PROJECT: Compras.API
+    container_name: examen_compras
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=VentasComprasDB;User Id=sa;Password=Tu_Password123;TrustServerCertificate=True;"
+      FrontendUrl: "http://localhost:4400"
+    ports:
+      - "5002:8080"
+    depends_on:
+      - db-init
+    networks:
+      - examen_net
+
+  ventas:
+    build:
+      context: ..
+      dockerfile: 04-docker/backend.Dockerfile
+      args:
+        PROJECT: Ventas.API
+    container_name: examen_ventas
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=VentasComprasDB;User Id=sa;Password=Tu_Password123;TrustServerCertificate=True;"
+      FrontendUrl: "http://localhost:4400"
+    ports:
+      - "5003:8080"
+    depends_on:
+      - db-init
+    networks:
+      - examen_net
+
+  movimientos:
+    build:
+      context: ..
+      dockerfile: 04-docker/backend.Dockerfile
+      args:
+        PROJECT: Movimientos.API
+    container_name: examen_movimientos
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=VentasComprasDB;User Id=sa;Password=Tu_Password123;TrustServerCertificate=True;"
+      FrontendUrl: "http://localhost:4400"
+    ports:
+      - "5004:8080"
+    depends_on:
+      - db-init
+    networks:
+      - examen_net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: 04-docker/frontend.Dockerfile
+    container_name: examen_frontend
+    ports:
+      - "4400:4200"
+    volumes:
+      - ../03-frontend-angular/app:/app
+      - /app/node_modules
+    depends_on:
+      - auth
+      - compras
+      - ventas
+      - movimientos
+    networks:
+      - examen_net
+
+volumes:
+  mssql_data:
+
+networks:
+  examen_net:
+    driver: bridge
